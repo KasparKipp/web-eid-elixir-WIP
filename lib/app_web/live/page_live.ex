@@ -6,6 +6,7 @@ defmodule AppWeb.PageLive do
     ~H"""
     <div>
       <h2>PageLive</h2>
+      <span id="1" data-timestamp={DateTime.utc_now()} phx-hook="TimeAgo"></span>
     </div>
     """
   end
