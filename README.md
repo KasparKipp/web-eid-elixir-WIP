@@ -1,11 +1,17 @@
 # App
 
-To start your Phoenix server:
+## Prerequisites
+
+* Make sure you have [Bun](https://bun.com) on your machine.
+
+## To start your Phoenix server:
 
 * Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix`
 
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+
+---------
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 

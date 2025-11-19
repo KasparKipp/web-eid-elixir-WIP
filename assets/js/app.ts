@@ -21,15 +21,17 @@
 import "phoenix_html";
 // Establish Phoenix Socket and LiveView configuration.
 import { Socket } from "deps/phoenix";
-import { LiveSocket } from "deps/phoenix_live_view";
-import { hooks as colocatedHooks } from "phoenix-colocated/app";
-import topbar from "../vendor/topbar";
+import { type HooksOptions, LiveSocket } from "deps/phoenix_live_view";
+// import { hooks as colocatedHooks } from "phoenix-colocated/app";
+import topbar from "topbar";
+
+const colocatedHooks: HooksOptions = {};
 
 const csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
 
-const Hooks = {};
+const Hooks: HooksOptions = {};
 
 Hooks.TimeAgo = {
   mounted() {
@@ -54,9 +56,9 @@ Hooks.TimeAgo = {
       return;
     }
 
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = Math.floor((now - date) / 1000);
+    const diff = Math.floor(
+      (Date.now() - new Date(timestamp).getTime()) / 1000
+    );
 
     if (diff < 0) {
       el.textContent = "in the future";
