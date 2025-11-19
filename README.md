@@ -1,5 +1,7 @@
 # App
 
+This is a sample app demonstrating how to initiate ID card authentication using the [Web eID](https://github.com/web-eid/web-eid.js) javascript library.
+
 ## Prerequisites
 
 * Make sure you have [Bun](https://bun.com) on your machine.

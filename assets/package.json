@@ -6,6 +6,7 @@
     "deploy": "bun build.ts --deploy"
   },
   "dependencies": {
+    "@web-eid/web-eid-library": "^2.0.2",
     "topbar": "^3.0.0"
   },
   "devDependencies": {
