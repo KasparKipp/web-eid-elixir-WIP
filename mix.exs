@@ -52,7 +52,6 @@ defmodule App.MixProject do
       {:phoenix_live_view, "~> 1.1.0"},
       {:lazy_html, ">= 0.1.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:esbuild, "~> 0.10", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.3", runtime: Mix.env() == :dev},
       {:heroicons,
        github: "tailwindlabs/heroicons",
@@ -83,13 +82,12 @@ defmodule App.MixProject do
       setup: ["deps.get", "assets.setup", "assets.build"],
       "assets.setup": [
         "cmd --cd assets bun i",
-        "tailwind.install --if-missing",
-        "esbuild.install --if-missing"
+        "tailwind.install --if-missing"
       ],
-      "assets.build": ["compile", "tailwind app", "esbuild app"],
+      "assets.build": ["compile", "tailwind app", "cmd --cd assets bun run build"],
       "assets.deploy": [
         "tailwind app --minify",
-        "esbuild app --minify",
+        "cmd --cd assets bun run deploy",
         "phx.digest"
       ],
       precommit: ["compile --warning-as-errors", "deps.unlock --unused", "format", "test"]

@@ -1,5 +1,15 @@
 {
+  "name": "assets",
+  "scripts": {
+    "build": "bun build.ts",
+    "watch": "bun build.ts --watch",
+    "deploy": "bun build.ts --deploy"
+  },
   "dependencies": {
     "topbar": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "esbuild": "^0.27.0"
   }
 }

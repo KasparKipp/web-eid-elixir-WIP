@@ -1,12 +1,25 @@
 {
   "compilerOptions": {
+    /* Bundler mode */
+
+    "allowJs": true,
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+
+    /* import aliases */
     "baseUrl": ".",
     "paths": {
       "deps/*": ["../deps/*"]
-    },
-    "moduleResolution": "bundler",
-    "allowJs": true,
-    "noEmit": true
+    }
   },
   "include": ["js/**/*"]
 }

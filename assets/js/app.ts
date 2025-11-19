@@ -18,7 +18,7 @@
 // To load it, simply add a second `<link>` to your `root.html.heex` file.
 
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
-import "phoenix_html";
+import "deps/phoenix_html";
 // Establish Phoenix Socket and LiveView configuration.
 import { Socket } from "deps/phoenix";
 import { type HooksOptions, LiveSocket } from "deps/phoenix_live_view";
@@ -28,8 +28,8 @@ import topbar from "topbar";
 const colocatedHooks: HooksOptions = {};
 
 const csrfToken = document
-  .querySelector("meta[name='csrf-token']")
-  .getAttribute("content");
+  ?.querySelector("meta[name='csrf-token']")
+  ?.getAttribute("content");
 
 const Hooks: HooksOptions = {};
 
