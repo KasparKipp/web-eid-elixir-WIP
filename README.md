@@ -2,9 +2,19 @@
 
 This is a sample app demonstrating how to initiate ID card authentication using the [Web eID](https://github.com/web-eid/web-eid.js) javascript library.
 
+# Getting Started
+
+Before you begin, make sure your computer is properly set up to use your ID card electronically.  
+Follow the official guide: [You wish to start using your ID-card electronically](https://www.id.ee/en/article/you-wish-to-start-using-your-id-card-electronically/).
+
+
 ## Prerequisites
 
-* Make sure you have [Bun](https://bun.com) on your machine.
+
+Before running the project, ensure you have the following installed on your machine:
+
+- [Elixir & Erlang](https://elixir-lang.org/install.html)
+- [Bun](https://bun.com)
 
 ## To start your Phoenix server:
 

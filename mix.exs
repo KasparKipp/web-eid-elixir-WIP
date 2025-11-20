@@ -81,7 +81,10 @@ defmodule App.MixProject do
     [
       setup: ["deps.get", "assets.setup", "assets.build"],
       "assets.setup": [
-        "cmd --cd assets bun i",
+        "
+        cmd --cd assets npm i &&
+        cmd --cd assets bun i
+        && remove package-lock.json",
         "tailwind.install --if-missing"
       ],
       "assets.build": ["compile", "tailwind app", "cmd --cd assets bun run build"],

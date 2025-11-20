@@ -23,6 +23,8 @@ import "deps/phoenix_html";
 import { Socket } from "deps/phoenix";
 import { type HooksOptions, LiveSocket } from "deps/phoenix_live_view";
 // import { hooks as colocatedHooks } from "phoenix-colocated/app";
+import { authenticate } from "@web-eid/web-eid-library/dist/es/web-eid";
+
 import topbar from "topbar";
 
 const colocatedHooks: HooksOptions = {};
@@ -31,7 +33,58 @@ const csrfToken = document
   ?.querySelector("meta[name='csrf-token']")
   ?.getAttribute("content");
 
+const ErrorCode = {
+  ERR_WEBEID_ACTION_TIMEOUT: "ERR_WEBEID_ACTION_TIMEOUT",
+  ERR_WEBEID_USER_TIMEOUT: "ERR_WEBEID_USER_TIMEOUT",
+  ERR_WEBEID_VERSION_MISMATCH: "ERR_WEBEID_VERSION_MISMATCH",
+  ERR_WEBEID_VERSION_INVALID: "ERR_WEBEID_VERSION_INVALID",
+  ERR_WEBEID_EXTENSION_UNAVAILABLE: "ERR_WEBEID_EXTENSION_UNAVAILABLE",
+  ERR_WEBEID_NATIVE_UNAVAILABLE: "ERR_WEBEID_NATIVE_UNAVAILABLE",
+  ERR_WEBEID_UNKNOWN_ERROR: "ERR_WEBEID_UNKNOWN_ERROR",
+  ERR_WEBEID_CONTEXT_INSECURE: "ERR_WEBEID_CONTEXT_INSECURE",
+  ERR_WEBEID_USER_CANCELLED: "ERR_WEBEID_USER_CANCELLED",
+  ERR_WEBEID_NATIVE_INVALID_ARGUMENT: "ERR_WEBEID_NATIVE_INVALID_ARGUMENT",
+  ERR_WEBEID_NATIVE_FATAL: "ERR_WEBEID_NATIVE_FATAL",
+  ERR_WEBEID_ACTION_PENDING: "ERR_WEBEID_ACTION_PENDING",
+  ERR_WEBEID_MISSING_PARAMETER: "ERR_WEBEID_MISSING_PARAMETER",
+} as const;
+
 const Hooks: HooksOptions = {};
+
+Hooks.WebEidAuth = {
+  mounted() {
+    const lang = navigator.language.substr(0, 2);
+
+    this.el.addEventListener("click", async () => {
+      try {
+        console.log("Clicked. Lang:", lang);
+
+        // 1️⃣ Request challenge nonce from server via LiveView
+        const response = await this.pushEvent("get_nonce", {});
+        const nonce = response.nonce;
+        console.log("Received nonce:", nonce);
+
+        // 2️⃣ Authenticate using Web eID JS library
+        const authToken = await authenticate(nonce, { lang });
+        console.log("Web eID auth token:", authToken);
+
+        // 3️⃣ Send authentication token to server
+        const authenticationResponse = await this.pushEvent("authenticate", {
+          authToken,
+        });
+        if (!authenticationResponse.ok) {
+          alert("Unexpected problem occurred");
+        }
+      } catch (error) {
+        if (error.code === ErrorCode.ERR_WEBEID_EXTENSION_UNAVAILABLE) {
+          alert("Web eID extension not available");
+        }
+        console.log("Error code:", error?.code);
+        console.error("Authentication failed! Error:", error);
+      }
+    });
+  },
+};
 
 Hooks.TimeAgo = {
   mounted() {
