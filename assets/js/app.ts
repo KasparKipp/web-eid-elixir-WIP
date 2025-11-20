@@ -86,46 +86,6 @@ Hooks.WebEidAuth = {
   },
 };
 
-Hooks.TimeAgo = {
-  mounted() {
-    this.updateTime();
-    this.interval = setInterval(() => this.updateTime(), 1000);
-  },
-
-  updated() {
-    this.updateTime();
-  },
-
-  destroyed() {
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
-  },
-
-  updateTime() {
-    const el = this.el;
-    const timestamp = el.dataset.timestamp;
-    if (!timestamp) {
-      return;
-    }
-
-    const diff = Math.floor(
-      (Date.now() - new Date(timestamp).getTime()) / 1000
-    );
-
-    if (diff < 0) {
-      el.textContent = "in the future";
-      return;
-    }
-
-    if (diff <= 5) {
-      el.textContent = "just now";
-      return;
-    }
-
-    el.textContent = `${diff} seconds ago`;
-  },
-};
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },

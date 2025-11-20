@@ -1,19 +1,22 @@
 defmodule AppWeb.PageLive do
   use AppWeb, :live_view
 
-  @nonce_bytes 32
-
   @impl Phoenix.LiveView
   def render(assigns) do
     ~H"""
-    <div>
-      <h2>PageLive</h2>
-      <span id="1" data-timestamp={DateTime.utc_now()} phx-hook="TimeAgo"></span>
-      <button :if={!@auth_token} id="id-auth" phx-hook="WebEidAuth" class="btn">Button </button>
+    <div class="flex flex-col items-center justify-center min-h-screen gap-4 mx-auto max-w-7xl">
+      <h2 class="text-3xl">Auth demo</h2>
+      <button :if={!@auth_token} id="id-auth" phx-hook="WebEidAuth" class="btn">
+        Sign in using ID card
+      </button>
 
-      <div :if={@auth_token}>
+      <div :if={@auth_token} class="flex flex-col max-w-full">
+        <div class="flex flex-col bg-base-200 p-3 rounded-lg">
+          <span class="font-semibold text-sm text-base-content">Nonce</span>
+          <pre class="text-xs font-mono text-base-content overflow-x-auto">{@nonce}</pre>
+        </div>
         <%= for {key, value} <- @auth_token do %>
-          <div class="flex flex-col bg-base-200 p-3 rounded-lg">
+          <div class="flex flex-col bg-base-200 p-3 rounded-lg flex-nowrap">
             <span class="font-semibold text-sm text-base-content">{key}</span>
             <pre class="text-xs font-mono text-base-content overflow-x-auto">{value}</pre>
           </div>
@@ -25,13 +28,18 @@ defmodule AppWeb.PageLive do
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, auth_token: nil)}
+    {:ok, assign(socket, auth_token: nil, nonce: nil)}
   end
 
   @impl Phoenix.LiveView
   def handle_event("get_nonce", _params, socket) do
-    # TODO nonce time limited to eg. 3 min, better yet store in session
-    nonce = :crypto.strong_rand_bytes(@nonce_bytes) |> Base.encode64()
+    # TODO nonce stored in session and time limited to eg. 3 min
+    nonce = App.WebEid.get_nonce()
+
+    socket =
+      socket
+      |> assign(nonce: nonce)
+
     {:reply, %{nonce: nonce}, socket}
   end
 
