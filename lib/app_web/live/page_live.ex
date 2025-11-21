@@ -11,6 +11,10 @@ defmodule AppWeb.PageLive do
       </button>
 
       <div :if={@auth_token} class="flex flex-col max-w-full">
+        <div :if={@json} class="flex flex-col bg-base-200 p-3 rounded-lg">
+          <span class="font-semibold text-sm text-base-content">Credentials</span>
+          <pre class="text-xs font-mono text-base-content overflow-x-auto">{@json}</pre>
+        </div>
         <div class="flex flex-col bg-base-200 p-3 rounded-lg">
           <span class="font-semibold text-sm text-base-content">Nonce</span>
           <pre class="text-xs font-mono text-base-content overflow-x-auto">{@nonce}</pre>
@@ -28,7 +32,8 @@ defmodule AppWeb.PageLive do
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
-    {:ok, assign(socket, auth_token: nil, nonce: nil)}
+    lv_pid = self()
+    {:ok, assign(socket, auth_token: nil, nonce: nil, json: nil, lv_pid: lv_pid)}
   end
 
   @impl Phoenix.LiveView
@@ -60,6 +65,76 @@ defmodule AppWeb.PageLive do
       socket
       |> assign(auth_token: auth_token)
 
+    auth_token_validation_request =
+      JSON.encode!(%{"authToken" => auth_token, nonce: socket.assigns.nonce})
+
+    port =
+      Port.open(
+        {:spawn, "jauth certsPath=certs/prod localOrigin=https://localhost:4001"},
+        [:binary]
+      )
+
+    PortListener.start_link(port, socket.assigns.lv_pid)
+
+    Port.command(port, auth_token_validation_request <> "\n")
+
+    receive do
+      {^port, {:data, data}} ->
+        IO.puts("\n")
+        IO.puts("Got data: #{data}")
+        send(socket.assigns.lv_pid, {:json, data})
+    after
+      1000 ->
+        IO.puts("No message received within 1 second")
+        nil
+    end
+
+    send(port, {self(), :close})
+
     {:reply, %{ok: "message received"}, socket}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_info({:json, json}, socket) do
+    socket =
+      socket
+      |> assign(json: json)
+
+    {:noreply, socket}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_info(info, socket) do
+    IO.inspect(info, label: "Unhandled info")
+
+    {:noreply, socket}
+  end
+end
+
+defmodule PortListener do
+  use GenServer
+
+  def start_link(port, lv_pid) do
+    GenServer.start_link(__MODULE__, {port, lv_pid})
+  end
+
+  def init({port, lv_pid}) do
+    Process.send_after(self(), :listen, 0)
+    {:ok, %{port: port, lv_pid: lv_pid}}
+  end
+
+  def handle_info(:listen, %{port: port} = state) do
+    receive do
+      {^port, {:data, data}} ->
+        IO.puts("Got data: #{data}")
+        send(state.lv_pid, {:json, data})
+    after
+      1000 ->
+        IO.puts("No message within 1s")
+    end
+
+    # Continue listening
+    # Process.send_after(self(), :listen, 0)
+    {:noreply, state}
   end
 end
