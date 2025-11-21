@@ -1,0 +1,20 @@
+[
+  {
+    "name": "ee.ut.kipp.Main$AuthTokenValidationRequest",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allPublicFields": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "eu.webeid.security.authtoken.WebEidAuthToken",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allPublicFields": true,
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
+  }
+]
