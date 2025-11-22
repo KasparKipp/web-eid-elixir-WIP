@@ -18,7 +18,9 @@ Before running the project, ensure you have the following installed on your mach
 
 ## To start your Phoenix server:
 
-* Run `mix setup` to install and setup dependencies
+w* Run `mix setup` to install and setup elixir dependencies
+* Run `./java_auth_program/gradlew -p java_auth_program fatJar` to build the java program that provides authorized credentials communicating via ports.
+* TODO: Common interface and documentation for different implementations
 * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix`
 
 Now you can visit [`https://localhost:4001`](https://localhost:4001) from your browser.
