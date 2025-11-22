@@ -1,11 +1,11 @@
-defmodule AppWeb.PageLive do
+defmodule AppWeb.IdCardPortsAuthLive do
   use AppWeb, :live_view
 
   @impl Phoenix.LiveView
   def render(assigns) do
     ~H"""
     <div class="flex flex-col items-center justify-center min-h-screen gap-4 mx-auto max-w-7xl">
-      <h2 class="text-3xl">Auth demo</h2>
+      <h2 class="text-3xl">Auth demo with ports</h2>
       <button :if={!@auth_token} id="id-auth" phx-hook="WebEidAuth" class="btn">
         Sign in using ID card
       </button>
