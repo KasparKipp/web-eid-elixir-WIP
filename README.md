@@ -3,6 +3,10 @@
 This is a WIP sample app demonstrating how to initiate ID card authentication using the [Web eID](https://github.com/web-eid/web-eid.js) javascript library
 and integrating with the [Web eID security](https://github.com/web-eid/web-eid-authtoken-validation-java#quickstart) java library for token validation.
 
+A minimal java application that can be run as a regular os process and invoked from elixir via ports can be found in the `./java_auth_program` directory.
+
+A configurable microservice/sidecar is being worked on for this project and can be found in github [Estonian eID Auth & Signing sidecar WIP](https://github.com/KasparKipp/estonian-eid-auth-signing-sidecar-WIP)
+
 # Getting Started
 
 Before you begin, make sure your computer is properly set up to use your ID card electronically.  
@@ -30,7 +34,9 @@ Before running the project, ensure you have the following installed on your mach
     ```
     * make the script executable `chmod +x /usr/local/bin/jauth`
 * To run the sidecar example:
-    * Run the [eID Auth&Signing program](TODO)
+    * Clone and run [Estonian eID Auth & Signing sidecar WIP](https://github.com/KasparKipp/estonian-eid-auth-signing-sidecar-WIP)
+* To run the jinterface example:
+    * In development
 * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix`
 
 Now you can visit [`https://localhost:4001`](https://localhost:4001) from your browser.
