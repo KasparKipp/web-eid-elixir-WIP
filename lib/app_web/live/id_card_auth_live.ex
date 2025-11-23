@@ -1,19 +1,20 @@
-defmodule AppWeb.IdCardPortsAuthLive do
+defmodule AppWeb.IdCardAuthLive do
   use AppWeb, :live_view
 
   @impl Phoenix.LiveView
   def render(assigns) do
     ~H"""
+    <Layouts.flash_group flash={@flash} />
     <div class="flex flex-col items-center justify-center min-h-screen gap-4 mx-auto max-w-7xl">
-      <h2 class="text-3xl">Auth demo with ports</h2>
+      <h2 :if={@backend} class="text-3xl">Auth demo with {Atom.to_string(@backend)}</h2>
       <button :if={!@auth_token} id="id-auth" phx-hook="WebEidAuth" class="btn">
         Sign in using ID card
       </button>
 
       <div :if={@auth_token} class="flex flex-col max-w-full">
-        <div :if={@json} class="flex flex-col bg-base-200 p-3 rounded-lg">
+        <div :if={@credentials} class="flex flex-col bg-base-200 p-3 rounded-lg">
           <span class="font-semibold text-sm text-base-content">Credentials</span>
-          <pre class="text-xs font-mono text-base-content overflow-x-auto">{@json}</pre>
+          <pre class="text-xs font-mono text-base-content overflow-x-auto">{@credentials}</pre>
         </div>
         <div class="flex flex-col bg-base-200 p-3 rounded-lg">
           <span class="font-semibold text-sm text-base-content">Nonce</span>
@@ -32,8 +33,14 @@ defmodule AppWeb.IdCardPortsAuthLive do
 
   @impl Phoenix.LiveView
   def mount(_params, _session, socket) do
-    lv_pid = self()
-    {:ok, assign(socket, auth_token: nil, nonce: nil, json: nil, lv_pid: lv_pid)}
+    {:ok, assign(socket, backend: nil, auth_token: nil, nonce: nil, credentials: nil)}
+  end
+
+  @impl Phoenix.LiveView
+  def handle_params(_params, _uri, socket) do
+    socket = assign(socket, backend: socket.assigns.live_action)
+
+    {:noreply, socket}
   end
 
   @impl Phoenix.LiveView
@@ -58,47 +65,33 @@ defmodule AppWeb.IdCardPortsAuthLive do
   # }
   @impl Phoenix.LiveView
   def handle_event("authenticate", %{"authToken" => auth_token}, socket) do
-    # TODO Continue from here
-    dbg(auth_token)
+    App.Auth.WebEid.AuthProvider.authenticate(
+      socket.assigns.backend,
+      self(),
+      auth_token,
+      socket.assigns.nonce
+    )
 
     socket =
       socket
       |> assign(auth_token: auth_token)
 
-    auth_token_validation_request =
-      JSON.encode!(%{"authToken" => auth_token, nonce: socket.assigns.nonce})
-
-    port =
-      Port.open(
-        {:spawn, "jauth certsPath=certs/prod localOrigin=https://localhost:4001"},
-        [:binary]
-      )
-
-    PortListener.start_link(port, socket.assigns.lv_pid)
-
-    Port.command(port, auth_token_validation_request <> "\n")
-
-    receive do
-      {^port, {:data, data}} ->
-        IO.puts("\n")
-        IO.puts("Got data: #{data}")
-        send(socket.assigns.lv_pid, {:json, data})
-    after
-      1000 ->
-        IO.puts("No message received within 1 second")
-        nil
-    end
-
-    send(port, {self(), :close})
-
     {:reply, %{ok: "message received"}, socket}
   end
 
   @impl Phoenix.LiveView
-  def handle_info({:json, json}, socket) do
+  def handle_info({:web_eid_auth_result, result}, socket) do
     socket =
-      socket
-      |> assign(json: json)
+      case result do
+        {:ok, credentials} ->
+          socket
+          |> assign(credentials: Jason.encode!(credentials))
+          |> put_flash(:info, "Success")
+
+        other ->
+          IO.inspect(other, label: "Unhandled Web eID auth result")
+          put_flash(socket, :error, "Oh no!")
+      end
 
     {:noreply, socket}
   end
@@ -108,33 +101,5 @@ defmodule AppWeb.IdCardPortsAuthLive do
     IO.inspect(info, label: "Unhandled info")
 
     {:noreply, socket}
-  end
-end
-
-defmodule PortListener do
-  use GenServer
-
-  def start_link(port, lv_pid) do
-    GenServer.start_link(__MODULE__, {port, lv_pid})
-  end
-
-  def init({port, lv_pid}) do
-    Process.send_after(self(), :listen, 0)
-    {:ok, %{port: port, lv_pid: lv_pid}}
-  end
-
-  def handle_info(:listen, %{port: port} = state) do
-    receive do
-      {^port, {:data, data}} ->
-        IO.puts("Got data: #{data}")
-        send(state.lv_pid, {:json, data})
-    after
-      1000 ->
-        IO.puts("No message within 1s")
-    end
-
-    # Continue listening
-    # Process.send_after(self(), :listen, 0)
-    {:noreply, state}
   end
 end

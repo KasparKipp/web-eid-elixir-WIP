@@ -1,6 +1,7 @@
 # App
 
-This is a sample app demonstrating how to initiate ID card authentication using the [Web eID](https://github.com/web-eid/web-eid.js) javascript library.
+This is a WIP sample app demonstrating how to initiate ID card authentication using the [Web eID](https://github.com/web-eid/web-eid.js) javascript library
+and integrating with the [Web eID security](https://github.com/web-eid/web-eid-authtoken-validation-java#quickstart) java library for token validation.
 
 # Getting Started
 
@@ -10,17 +11,26 @@ Follow the official guide: [You wish to start using your ID-card electronically]
 
 ## Prerequisites
 
-
 Before running the project, ensure you have the following installed on your machine:
 
 - [Elixir & Erlang](https://elixir-lang.org/install.html)
 - [Bun](https://bun.com)
+- [Java 25]()
 
 ## To start your Phoenix server:
 
-w* Run `mix setup` to install and setup elixir dependencies
-* Run `./java_auth_program/gradlew -p java_auth_program fatJar` to build the java program that provides authorized credentials communicating via ports.
-* TODO: Common interface and documentation for different implementations
+* Run `mix setup` to install and setup elixir dependencies
+* To run the ports example:
+    * Run `./java_auth_program/gradlew -p java_auth_program fatJar` to build the java program that provides authorized credentials communicating via ports.
+    * move the jar file `mv ./java_auth_program/build/libs/java-auth-program-0.0.1-SNAPSHOT.jar /usr/local/lib/jauth.jar`
+    * make a bash script to `/usr/local/bin/jauth` make the jar accessible to the phx app with jauth command:
+    ```bash
+    #!/bin/bash
+    java -jar /usr/local/lib/jauth.jar "$@"
+    ```
+    * make the script executable `chmod +x /usr/local/bin/jauth`
+* To run the sidecar example:
+    * Run the [eID Auth&Signing program](TODO)
 * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix`
 
 Now you can visit [`https://localhost:4001`](https://localhost:4001) from your browser.

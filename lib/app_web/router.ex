@@ -23,8 +23,9 @@ defmodule AppWeb.Router do
   scope "/id-card", AppWeb do
     pipe_through(:browser)
 
-    live("/ports", IdCardPortsAuthLive)
-    live("/sidecar", IdCardSidecarAuthlive)
+    live("/ports", IdCardAuthLive, :ports)
+    live("/sidecar", IdCardAuthLive, :sidecar)
+    live("/jinterface", IdCardAuthLive, :jinterface)
 
     get("/", PageController, :home)
   end

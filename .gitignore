@@ -35,5 +35,7 @@ app-*.tar
 npm-debug.log
 /assets/node_modules/
 
+.iex.exs
+
 /java_auth_program/src/main/resources/certs
 
