@@ -86,9 +86,70 @@ Hooks.WebEidAuth = {
   },
 };
 
+type EntryKeys =
+  | "ref"
+  | "fileEl"
+  | "file"
+  | "view"
+  | "_isCancelled"
+  | "_isDone"
+  | "_progress"
+  | "_lastProgressSent"
+  | "_onDone"
+  | "_onElUpdated"
+  | "autoUpload";
+type Entry = Record<EntryKeys, any> & {
+  meta: {
+    key: string;
+    url: string;
+    uploader: "S3";
+    fields: {
+      key: string;
+      policy: string;
+      "x-amz-algorithm": string;
+      "x-amz-credential": string;
+      "x-amz-date": string;
+      "x-amz-server-side-enxryption": "AES256";
+      "x-amz-signature": string;
+    };
+  };
+};
+
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
+  uploaders: {
+    S3: (entries: Entry[], onViewError) => {
+      console.log("In S3 uploader hook");
+
+      entries.forEach((entry: Entry) => {
+        console.log("Entry keys:", Object.keys(entry));
+        console.log("Entry meta:", JSON.stringify(entry.meta));
+        let formData = new FormData();
+        let { url, fields } = entry.meta;
+        Object.entries(fields).forEach(([key, val]) =>
+          formData.append(key, val)
+        );
+        formData.append("file", entry.file);
+        let xhr = new XMLHttpRequest();
+        onViewError(() => xhr.abort());
+        xhr.onload = () =>
+          xhr.status === 204 ? entry.progress(100) : entry.error();
+        xhr.onerror = () => entry.error();
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable) {
+            let percent = Math.round((event.loaded / event.total) * 100);
+            if (percent < 100) {
+              entry.progress(percent);
+            }
+          }
+        });
+
+        xhr.open("POST", url, true);
+        xhr.send(formData);
+      });
+    },
+  },
   hooks: { ...colocatedHooks, ...Hooks },
 });
 

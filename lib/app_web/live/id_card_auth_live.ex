@@ -85,7 +85,7 @@ defmodule AppWeb.IdCardAuthLive do
       case result do
         {:ok, credentials} ->
           socket
-          |> assign(credentials: Jason.encode!(credentials))
+          |> assign(credentials: JSON.encode!(credentials))
           |> put_flash(:info, "Success")
 
         other ->
